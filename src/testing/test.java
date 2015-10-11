@@ -19,10 +19,11 @@ public class test {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("test");
-        frame.setContentPane(new test().something);
+        test b = new test();
+        frame.setContentPane(b.something);
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosed(WindowEvent e) {
-                a = new test().NWx.getText();
+                a = b.NWx.getText();
                 System.out.println(a);
             }
 
