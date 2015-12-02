@@ -180,7 +180,6 @@ public class gatherData {
         String[] formattedAddress = acresults.get("formatted_address").toString().split(" ")[0].split("-");
         return Integer.parseInt(formattedAddress[0]);
     }
-
     private static boolean fileExists(File a) throws IOException {
         try {
             Scanner sc = new Scanner(a);
