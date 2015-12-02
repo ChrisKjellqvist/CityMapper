@@ -4,20 +4,21 @@ package main;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
+import java.util.Scanner;
 
 /**
  * Created by chris on 10/13/15.
  */
-public class GUIFS {
-    private static JTextField NWx;
-
-    public static void main(String[] args) {
+public class start {
+    public static void run() throws IOException {
 
         //Designing all of the Rows
         Dimension TextFieldDimensions = new Dimension(200, 20);
@@ -128,13 +129,17 @@ public class GUIFS {
         JButton FetchMap = new JButton("Fetch Map");
         FetchMap.setBorder(padding);
         FetchMap.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JButton save = new JButton("Save Settings");
+        save.setBorder(padding);
+        save.setAlignmentX(Component.LEFT_ALIGNMENT);
         Row7.add(ZoomLabel);
         Row7.add(Zoom);
         Row7.add(FetchMap);
+        Row7.add(save);
         full.add(Row7);
 
         ImagePanel mapPane = new ImagePanel();
-        mapPane.setBackground(Color.black);
+        mapPane.setBackground(Color.cyan);
         mapPane.setPreferredSize(new Dimension(400, 400));
         mapPane.setSize(400, 400);
         mapPane.setBorder(padding);
@@ -146,8 +151,15 @@ public class GUIFS {
             public void actionPerformed(ActionEvent e) {
 
                 String str1 = "https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=";
-                String str2 = City.getText() + "&";
-                String str3 = "zoom=" + Integer.toString(Zoom.getValue()) + "&";
+                String CityS = City.getText();
+                for (int i = 0; i < CityS.length(); i++) {
+                    if (CityS.charAt(i) == ' ') {
+                        CityS = CityS.substring(0, i) + "_"
+                                + CityS.substring(i + 1, CityS.length());
+                    }
+                }
+                String str2 = CityS + "&";
+                String str3 = "zoom=" + Integer.toString(Zoom.getValue()) + "&scale=2&";
                 String str4 = "size=400x400&key=AIzaSyAG3MBBOC0LVqRE3ZOYiRqOvZ7DyTzoRzU";
                 BufferedImage image = null;
                 try {
@@ -161,10 +173,70 @@ public class GUIFS {
             }
         });
 
+        yDivs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue()));
+            }
+        });
+
+        xDivs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue()));
+            }
+        });
+
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double[] NW = new double[2];
+                double[] SE = new double[2];
+                try {
+                    NW[0] = Double.parseDouble(NWx.getText());
+                    NW[1] = Double.parseDouble(NWy.getText());
+                    SE[0] = Double.parseDouble(SEx.getText());
+                    SE[1] = Double.parseDouble(SEy.getText());
+                } catch (Exception excpetion) {
+                    alert.display("There's something wrong with the coordinates you entered!");
+                }
+                int divs[] = {xDivs.getValue(), yDivs.getValue()};
+                int zoom = Zoom.getValue();
+                String city = City.getText();
+                try {
+                    BufferedWriter wr = new BufferedWriter(new FileWriter(new File("settings.txt")));
+                    wr.write(Double.toString(NW[0]) + " " + Double.toString(NW[1]) + "\n");
+                    wr.write(Double.toString(SE[0]) + " " + Double.toString(SE[1]) + "\n");
+                    wr.write(Integer.toString(divs[0]) + " " + Integer.toString(divs[1]) + "\n");
+                    wr.write(Integer.toString(zoom) + " " + city);
+                    if (fileExists(new File("settings.txt"))) {
+                        alert.display("overwriting previous settings!!!");
+                    }
+                    wr.close();
+                } catch (IOException exc) {
+                    System.out.println(exc);
+                }
+
+            }
+        });
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public static boolean fileExists(File a) throws IOException {
+        try {
+            Scanner sc = new Scanner(a);
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+            return false;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) throws IOException {
+        run();
     }
 
     public static class ImagePanel extends JPanel {
