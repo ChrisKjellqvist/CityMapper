@@ -6,8 +6,6 @@ import json.JSONObject;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.URL;
 import java.util.Scanner;
@@ -54,22 +52,19 @@ public class gatherData {
         for (int i = 0; i < 2; i++) {
             divs[i] = Integer.parseInt(temp[i]);
         }
-        temp = sc.nextLine().split(" ");
-        int zoom = Integer.parseInt(temp[0]);
-        String city = temp[1];
         range = divs[0] * divs[1];
         iterationRequest();
         while (iteration == 0) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                System.out.println(e);
+                System.out.println("Somehow this error occured?");
             }
         }
 
         //Finding which row and column of the picture we're on.
-        int row = 0;
-        int column = 0;
+        int row;
+        int column;
         row = iteration % divs[0];
         if (row == 0) {
             row = divs[0];
@@ -88,7 +83,7 @@ public class gatherData {
         double SEy = NW[1] + dY * column;
         double[] b = {SEx, SEy};
         File[] f = {new File("input_" + iteration + ".txt"), new File("err_" + iteration + ".txt")};
-        //gatherData(f, a, b, 200);
+        gather(f, a, b, 50);
     }
 
     private static void iterationRequest() {
@@ -110,28 +105,25 @@ public class gatherData {
         panel.setPreferredSize(new Dimension(600, 80));
         frame.add(panel);
         frame.pack();
-        submit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    int iter = Integer.parseInt(ans.getText());
-                    if (fileExists(new File("input_" + iter + ".txt"))) {
-                        whichIt.setText("You've already done that one! Try again.");
-                    } else if (iter > range || iter <= 0) {
-                        whichIt.setText("Not in the iteration range! Try again.");
-                    } else {
-                        iteration = iter;
-                        frame.dispose();
-                    }
-                } catch (Exception exc) {
-                    System.out.println(exc);
+        submit.addActionListener(e -> {
+            try {
+                int iter = Integer.parseInt(ans.getText());
+                if (fileExists(new File("input_" + iter + ".txt"))) {
+                    whichIt.setText("You've already done that one! Try again.");
+                } else if (iter > range || iter <= 0) {
+                    whichIt.setText("Not in the iteration range! Try again.");
+                } else {
+                    iteration = iter;
+                    frame.dispose();
                 }
+            } catch (Exception exc) {
+                System.out.println("error?");
             }
         });
         frame.setVisible(true);
     }
 
-    private static void gatherData(File[] files, double[] NW, double[] SE, int div) throws Exception {
+    private static void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
 
         double HIterator = (NW[0] - SE[0]) / div;
         double VIterator = (NW[1] - SE[1]) / div;
@@ -146,7 +138,7 @@ public class gatherData {
             for (int j = 0; j < div; j++) {
                 double x = NW[0] - (j * HIterator);
                 double y = NW[1] - (i * VIterator);
-                int address = 0;
+                int address;
                 try {
                     address = getAddressNumber(x, y);
                     if (address != 0) {
@@ -164,7 +156,7 @@ public class gatherData {
     private static JSONObject getGoogleInput(URL u) throws IOException {
         InputStream b = u.openStream();
         BufferedReader a = new BufferedReader(new InputStreamReader(b));
-        String line = "";
+        String line;
         StringBuilder sb = new StringBuilder();
         while ((line = a.readLine()) != null) {
             sb.append(line);
@@ -183,13 +175,11 @@ public class gatherData {
     private static boolean fileExists(File a) throws IOException {
         try {
             Scanner sc = new Scanner(a);
+            sc.close();
         } catch (FileNotFoundException e) {
             return false;
         }
         return true;
     }
 
-    public static void main(String[] args) throws IOException {
-        run();
-    }
 }

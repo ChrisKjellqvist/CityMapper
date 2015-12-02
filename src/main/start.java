@@ -4,11 +4,7 @@ package main;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
@@ -16,6 +12,7 @@ import java.util.Scanner;
 
 /**
  * Created by chris on 10/13/15.
+ * This is the program run the first time the program is run. All other times, gatherData should go instead.
  */
 public class start {
     public static void run() throws IOException {
@@ -146,81 +143,65 @@ public class start {
         full.add(mapPane);
 
         //Listeners
-        FetchMap.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        FetchMap.addActionListener(e -> {
 
-                String str1 = "https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=";
-                String CityS = City.getText();
-                for (int i = 0; i < CityS.length(); i++) {
-                    if (CityS.charAt(i) == ' ') {
-                        CityS = CityS.substring(0, i) + "_"
-                                + CityS.substring(i + 1, CityS.length());
-                    }
+            String str1 = "https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=";
+            String CityS = City.getText();
+            for (int i = 0; i < CityS.length(); i++) {
+                if (CityS.charAt(i) == ' ') {
+                    CityS = CityS.substring(0, i) + "_"
+                            + CityS.substring(i + 1, CityS.length());
                 }
-                String str2 = CityS + "&";
-                String str3 = "zoom=" + Integer.toString(Zoom.getValue()) + "&scale=2&";
-                String str4 = "size=400x400&key=AIzaSyAG3MBBOC0LVqRE3ZOYiRqOvZ7DyTzoRzU";
-                BufferedImage image = null;
-                try {
-                    URL u = new URL(str1 + str2 + str3 + str4);
-                    InputStream stream = u.openStream();
-                    image = ImageIO.read(stream);
-                    mapPane.setPic(image);
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                }
+            }
+            String str2 = CityS + "&";
+            String str3 = "zoom=" + Integer.toString(Zoom.getValue()) + "&scale=2&";
+            String str4 = "size=400x400&key=AIzaSyAG3MBBOC0LVqRE3ZOYiRqOvZ7DyTzoRzU";
+            BufferedImage image;
+            try {
+                URL u = new URL(str1 + str2 + str3 + str4);
+                InputStream stream = u.openStream();
+                image = ImageIO.read(stream);
+                mapPane.setPic(image);
+            } catch (Exception ex) {
+                System.out.println("error?");
             }
         });
 
-        yDivs.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue()));
-            }
-        });
+        yDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
 
-        xDivs.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue()));
-            }
-        });
+        xDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
 
-        save.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                double[] NW = new double[2];
-                double[] SE = new double[2];
-                try {
-                    NW[0] = Double.parseDouble(NWx.getText());
-                    NW[1] = Double.parseDouble(NWy.getText());
-                    SE[0] = Double.parseDouble(SEx.getText());
-                    SE[1] = Double.parseDouble(SEy.getText());
-                } catch (Exception excpetion) {
-                    alert.display("There's something wrong with the coordinates you entered!");
+        save.addActionListener(e -> {
+            double[] NW = new double[2];
+            double[] SE = new double[2];
+            try {
+                NW[0] = Double.parseDouble(NWx.getText());
+                NW[1] = Double.parseDouble(NWy.getText());
+                SE[0] = Double.parseDouble(SEx.getText());
+                SE[1] = Double.parseDouble(SEy.getText());
+            } catch (Exception excpetion) {
+                alert.display("There's something wrong with the coordinates you entered!");
+            }
+            int divs[] = {xDivs.getValue(), yDivs.getValue()};
+            int zoom = Zoom.getValue();
+            String city = City.getText();
+            try {
+                BufferedWriter wr = new BufferedWriter(new FileWriter(new File("settings.txt")));
+                wr.write(Double.toString(NW[0]) + " " + Double.toString(NW[1]) + "\n");
+                wr.write(Double.toString(SE[0]) + " " + Double.toString(SE[1]) + "\n");
+                wr.write(Integer.toString(divs[0]) + " " + Integer.toString(divs[1]) + "\n");
+                wr.write(Integer.toString(zoom) + " " + city);
+                if (fileExists(new File("settings.txt"))) {
+                    alert.display("overwriting previous settings!!!");
                 }
-                int divs[] = {xDivs.getValue(), yDivs.getValue()};
-                int zoom = Zoom.getValue();
-                String city = City.getText();
-                try {
-                    BufferedWriter wr = new BufferedWriter(new FileWriter(new File("settings.txt")));
-                    wr.write(Double.toString(NW[0]) + " " + Double.toString(NW[1]) + "\n");
-                    wr.write(Double.toString(SE[0]) + " " + Double.toString(SE[1]) + "\n");
-                    wr.write(Integer.toString(divs[0]) + " " + Integer.toString(divs[1]) + "\n");
-                    wr.write(Integer.toString(zoom) + " " + city);
-                    if (fileExists(new File("settings.txt"))) {
-                        alert.display("overwriting previous settings!!!");
-                    }
-                    wr.close();
-                } catch (IOException exc) {
-                    System.out.println(exc);
-                }
-
+                wr.close();
+            } catch (IOException exc) {
+                System.out.println("error?");
             }
+
         });
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
@@ -228,19 +209,14 @@ public class start {
     public static boolean fileExists(File a) throws IOException {
         try {
             Scanner sc = new Scanner(a);
+            sc.close();
         } catch (FileNotFoundException e) {
-            System.out.println(e);
             return false;
         }
         return true;
     }
 
-    public static void main(String[] args) throws IOException {
-        run();
-    }
-
     public static class ImagePanel extends JPanel {
-        ImageIcon image;
         Image pic;
 
         public void setPic(Image pic) {
