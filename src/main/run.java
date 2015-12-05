@@ -10,6 +10,7 @@ import java.util.Scanner;
  */
 public class run {
     public static void main(String[] args) {
+        alert.display(run.class.getResource("run.class").toString());
         if (!(fileExists(new File("./settings.txt")))) {
             alert.display("couldn't find settings.");
             //start.run();
