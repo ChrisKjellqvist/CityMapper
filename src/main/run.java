@@ -10,7 +10,12 @@ import java.util.Scanner;
  */
 public class run {
     public static void main(String[] args) {
-        alert.display(run.class.getResource("run.class").toString());
+        File a = new File(run.class.getResource("run.class").getFile());
+        alert.display(Boolean.toString(a.exists()));
+        //The jar file return no on the line above... it can't find itself?
+        alert.display(a.toString());
+        alert.display(a.getParent());
+
         if (!(fileExists(new File("./settings.txt")))) {
             alert.display("couldn't find settings.");
             //start.run();
