@@ -12,10 +12,10 @@ public class run {
     public static void main(String[] args) {
         File a = new File(run.class.getResource("run.class").getFile());
         alert.display(Boolean.toString(a.exists()));
-        //The jar file return no on the line above... it can't find itself?
-        alert.display(a.toString());
-        alert.display(a.getParent());
-
+        File asdf = new File((new File(new File(a.getParent()).getParent()).getParent() + "/CityMapper.jar").substring(5));
+        alert.display(asdf.toString());
+        alert.display(asdf.exists() + " ");
+        /*
         if (!(fileExists(new File("./settings.txt")))) {
             alert.display("couldn't find settings.");
             //start.run();
@@ -23,7 +23,7 @@ public class run {
         if (!(fileExists(new File("./api_key.txt")))) {
             alert.display("Make your api_key.txt pleaseaa.");
         }
-
+        */
         /*else {
             gatherData.run();
         }*/
