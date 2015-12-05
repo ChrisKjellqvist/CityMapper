@@ -8,16 +8,24 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
-import java.util.Scanner;
 
 /**
  * Created by chris on 10/13/15.
- * This is the program run the first time the program is run. All other times, gatherData should go instead.
+ * This is the GUI for generating the settings file. It's really only useful if you're
+ * making your own settings file for doing this personally. If you're working with
+ * other people, it's just a lot simpler to send them the settings file yourself.
+ *
+ * To add: the numbers for the x and y values for the NW and SE coordinates have been
+ * looked up manually by me. Google maps doesn't let you get a map based off of coordinates,
+ * you have to use a location and a zoom level. I tried a little to find if I could come
+ * up with a relationship between zoom and coordinate difference from the center of the
+ * picture but it was too much work compared to just doing it manually so that's how I'm
+ * doing it.
  */
-public class start {
+public class startupbox {
     public static void run() throws IOException {
 
-        //Designing all of the Rows
+        //Designing all of the Rows. The names for the components are pretty self explanatory
         Dimension TextFieldDimensions = new Dimension(200, 20);
         JFrame frame = new JFrame("CityMapper");
         JPanel full = new JPanel();
@@ -142,7 +150,9 @@ public class start {
         mapPane.setBorder(padding);
         full.add(mapPane);
 
-        //Listeners
+        /*
+        This grabs a map of the area you might be making a map of.
+         */
         FetchMap.addActionListener(e -> {
 
             String str1 = "https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=";
@@ -166,11 +176,19 @@ public class start {
                 System.out.println("error?");
             }
         });
+        /*
+        These next two tell you how many boxes you have in your complete picture. Supposing
+        you do 1 box per day, it should be about how many days it takes you to complete the
+        picture too.
+         */
 
         yDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
 
         xDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
 
+        /*
+        This saves the data you entered into a settings file.
+         */
         save.addActionListener(e -> {
             double[] NW = new double[2];
             double[] SE = new double[2];
@@ -179,24 +197,26 @@ public class start {
                 NW[1] = Double.parseDouble(NWy.getText());
                 SE[0] = Double.parseDouble(SEx.getText());
                 SE[1] = Double.parseDouble(SEy.getText());
-            } catch (Exception excpetion) {
-                alert.display("There's something wrong with the coordinates you entered!");
+            } catch (Exception exception) {
+                common.display("There's something wrong with the coordinates you entered!");
             }
             int divs[] = {xDivs.getValue(), yDivs.getValue()};
             int zoom = Zoom.getValue();
             String city = City.getText();
             try {
-                BufferedWriter wr = new BufferedWriter(new FileWriter(new File("settings.txt")));
+                BufferedWriter wr = new BufferedWriter(new FileWriter(new File(common.getParentDirectory() + "settings.txt")));
                 wr.write(Double.toString(NW[0]) + " " + Double.toString(NW[1]) + "\n");
                 wr.write(Double.toString(SE[0]) + " " + Double.toString(SE[1]) + "\n");
                 wr.write(Integer.toString(divs[0]) + " " + Integer.toString(divs[1]) + "\n");
                 wr.write(Integer.toString(zoom) + " " + city);
-                if (fileExists(new File("settings.txt"))) {
-                    alert.display("overwriting previous settings!!!");
+                if (common.fileExists("settings.txt")) {
+                    common.display("overwriting previous settings!!!");
                 }
                 wr.close();
+                common.display("data written");
+                frame.dispose();
             } catch (IOException exc) {
-                System.out.println("error?");
+                common.display("error?");
             }
 
         });
@@ -206,16 +226,9 @@ public class start {
         frame.setVisible(true);
     }
 
-    public static boolean fileExists(File a) throws IOException {
-        try {
-            Scanner sc = new Scanner(a);
-            sc.close();
-        } catch (FileNotFoundException e) {
-            return false;
-        }
-        return true;
-    }
-
+    /*
+    This is the image frame within the frame that displays the map.
+     */
     public static class ImagePanel extends JPanel {
         Image pic;
 
