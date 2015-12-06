@@ -16,7 +16,7 @@ public class run {
         } else if (!(common.fileExists("api_key.txt"))) {
             new MessageBox("Make your api_key.txt please.").setVisible(true);
         } else {
-            gatherData.run();
+            DataGatherer.run();
         }
     }
 

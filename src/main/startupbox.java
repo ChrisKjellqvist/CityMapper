@@ -1,13 +1,13 @@
 package main;
 
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URL;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Created by chris on 10/13/15.
@@ -24,7 +24,7 @@ import java.net.URL;
  */
 public class startupbox {
     public static void run() throws IOException {
-
+        final FlowLayout defaultFlowLayout = new FlowLayout(FlowLayout.LEFT);
         //Designing all of the Rows. The names for the components are pretty self explanatory
         Dimension TextFieldDimensions = new Dimension(200, 20);
         JFrame frame = new JFrame("CityMapper");
@@ -34,75 +34,38 @@ public class startupbox {
         Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 5);
         frame.add(full);
 
-        JPanel row1 = new JPanel(new FlowLayout());
-        JLabel nWCoords = new JLabel("Northwest Coordinates:");
-        nWCoords.setBorder(padding);
-        row1.add(nWCoords, 0);
-        JTextField nWx = new JTextField("X"); //MAKE THIS A CLASS - NAMING CONVENTIONS
-        nWx.setPreferredSize(TextFieldDimensions);
-        nWx.setBorder(padding);
-        row1.add(nWx, 1);
-        JTextField nWy = new JTextField("Y");
-        nWy.setPreferredSize(TextFieldDimensions);
-        nWy.setBorder(padding);
-        row1.add(nWy, 2);
+        CoordinateEntries row1 = new CoordinateEntries("Northwest Coordinates", new FlowLayout());
         full.add(row1);
 
 
-        JPanel row2 = new JPanel(new FlowLayout());
-        JLabel sECoords = new JLabel("SouthEast Coordinates:");
-        sECoords.setBorder(padding);
-        row2.add(sECoords, 0);
-        JTextField sEx = new JTextField("X");
-        sEx.setPreferredSize(TextFieldDimensions);
-        sEx.setBorder(padding);
-        row2.add(sEx, 1);
-        JTextField sEy = new JTextField("Y");
-        sEy.setPreferredSize(TextFieldDimensions);
-        sEy.setBorder(padding);
-        row2.add(sEy, 2);
+        CoordinateEntries row2 = new CoordinateEntries("Southeast Coordinates", new FlowLayout());
         full.add(row2);
 
-        JPanel row3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel row3 = new JPanel(defaultFlowLayout);
         JLabel divisions = new JLabel("divisions:");
         divisions.setBorder(padding);
         divisions.setAlignmentX(Component.LEFT_ALIGNMENT);
         row3.add(divisions);
         full.add(row3);
 
-        JPanel row4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel row4 = new JPanel(defaultFlowLayout);
         JLabel xDivLabel = new JLabel("X divisions: ");
+        JSlider xDivs = new DefaultSlider(1, 10);
         xDivLabel.setBorder(padding);
-        JSlider xDivs = new JSlider(1, 10, 4);
-        xDivs.setBorder(padding);
-        xDivs.setPreferredSize(new Dimension(200, 40));
         xDivLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        xDivs.setAlignmentX(Component.LEFT_ALIGNMENT);
-        xDivs.setMajorTickSpacing(1);
-        xDivs.setPaintTicks(true);
-        xDivs.setSnapToTicks(true);
-        xDivs.setPaintLabels(true);
-        JLabel daysToComplete = new JLabel(" ");
+        JLabel daysToComplete = new JLabel("");
         daysToComplete.setBorder(padding);
-        daysToComplete.setText("123");
         daysToComplete.setAlignmentX(Component.LEFT_ALIGNMENT);
         row4.add(xDivLabel);
         row4.add(xDivs);
         row4.add(daysToComplete);
         full.add(row4);
 
-        JPanel row5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel row5 = new JPanel(defaultFlowLayout);
+        JSlider yDivs = new DefaultSlider(0, 10);
         JLabel yDivLabel = new JLabel("Y divisions: ");
         yDivLabel.setBorder(padding);
-        JSlider yDivs = new JSlider(1, 10, 4);
-        yDivs.setBorder(padding);
-        yDivs.setPreferredSize(new Dimension(200, 40));
-        yDivs.setAlignmentX(Component.LEFT_ALIGNMENT);
         yDivLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        yDivs.setMajorTickSpacing(1);
-        yDivs.setPaintTicks(true);
-        yDivs.setSnapToTicks(true);
-        yDivs.setPaintLabels(true);
         JTextField city = new JTextField("City");
         city.setAlignmentX(Component.LEFT_ALIGNMENT);
         city.setBorder(padding);
@@ -112,25 +75,18 @@ public class startupbox {
         row5.add(city);
         full.add(row5);
 
-        JPanel row6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel row6 = new JPanel(defaultFlowLayout);
         JLabel mapInfo = new JLabel("Map Info:");
         mapInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
         mapInfo.setBorder(padding);
         row6.add(mapInfo);
         full.add(row6);
 
-        JPanel row7 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel row7 = new JPanel(defaultFlowLayout);
         JLabel zoomLabel = new JLabel("Zoom Level: ");
         zoomLabel.setBorder(padding);
         zoomLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JSlider zoom = new JSlider(0, 20, 14);
-        zoom.setMajorTickSpacing(5);
-        zoom.setMinorTickSpacing(1);
-        zoom.setPaintLabels(true);
-        zoom.setSnapToTicks(true);
-        zoom.setPaintTicks(true);
-        zoom.setAlignmentX(Component.LEFT_ALIGNMENT);
-        zoom.setBorder(padding);
+        JSlider zoom = new DefaultSlider(0, 20);
         JButton fetchMap = new JButton("Fetch Map");
         fetchMap.setBorder(padding);
         fetchMap.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -144,7 +100,6 @@ public class startupbox {
         full.add(row7);
 
         ImagePanel mapPane = new ImagePanel();
-        mapPane.setBackground(Color.cyan);
         mapPane.setPreferredSize(new Dimension(400, 400));
         mapPane.setSize(400, 400);
         mapPane.setBorder(padding);
@@ -154,27 +109,13 @@ public class startupbox {
         This grabs a map of the area you might be making a map of.
          */
         fetchMap.addActionListener(e -> {
-
-            String str1 = "https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=";
-            String cityS = city.getText();
-            for (int i = 0; i < cityS.length(); i++) {
-                if (cityS.charAt(i) == ' ') {
-                    cityS = cityS.substring(0, i) + "_"
-                            + cityS.substring(i + 1, cityS.length());
-                }
-            }
-            String str2 = cityS + "&";
-            String str3 = "zoom=" + Integer.toString(zoom.getValue()) + "&scale=2&";
-            String str4 = "size=400x400&key=AIzaSyAG3MBBOC0LVqRE3ZOYiRqOvZ7DyTzoRzU";
-            BufferedImage image;
             try {
-                URL u = new URL(str1 + str2 + str3 + str4);
-                InputStream stream = u.openStream();
-                image = ImageIO.read(stream);
-                mapPane.setPic(image);
-            } catch (Exception ex) {
-                System.out.println("error?");
+                mapPane.setPic(new GoogleMap(city.getText(), mapPane.getWidth(),
+                        mapPane.getHeight(), zoom.getValue()).getMap());
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
+
         });
         /*
         These next two tell you how many boxes you have in your complete picture. Supposing
@@ -193,10 +134,10 @@ public class startupbox {
             double[] nw = new double[2];
             double[] se = new double[2];
             try {
-                nw[0] = Double.parseDouble(nWx.getText());
-                nw[1] = Double.parseDouble(nWy.getText());
-                se[0] = Double.parseDouble(sEx.getText());
-                se[1] = Double.parseDouble(sEy.getText());
+                nw[0] = Double.parseDouble(row1.getxcoord().getText());
+                nw[1] = Double.parseDouble(row1.getycoord().getText());
+                se[0] = Double.parseDouble(row2.getxcoord().getText());
+                se[1] = Double.parseDouble(row2.getycoord().getText());
             } catch (Exception exception) {
                 new MessageBox("There's something wrong with the coordinates you entered!").setVisible(true);
             }

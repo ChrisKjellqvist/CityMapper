@@ -1,17 +1,15 @@
 package main;
 
-import json.JSONArray;
-import json.JSONObject;
-
-import java.io.*;
-import java.net.URL;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Scanner;
 
 /**
  * Created by chris on 9/17/15.
  * Gathers data for the making of an address map.
  */
-public class gatherData {
+public class DataGatherer {
 
     //When asking google for geocoding data, you put it in the format below.
     static String prefix = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
@@ -30,39 +28,18 @@ public class gatherData {
         t.close();
         Scanner sc = new Scanner(new File(common.getParentDirectory() + "settings.txt"));
         String[] temp;
-        double[] nw = new double[2];
-        temp = sc.nextLine().split(" ");
-        for (int i = 0; i < 2; i++) {
-            nw[i] = Double.parseDouble(temp[i]);
-        }
-        double[] se = new double[2];
-        temp = sc.nextLine().split(" ");
-        for (int i = 0; i < 2; i++) {
-            se[i] = Double.parseDouble(temp[i]);
-        }
-        int[] divs = new int[2];
-        temp = sc.nextLine().split(" ");
-        for (int i = 0; i < 2; i++) {
-            divs[i] = Integer.parseInt(temp[i]);
-        }
+        double[] nw = common.getDoubles(sc.nextLine());
+        double[] se = common.getDoubles(sc.nextLine());
+        int[] divs = common.getIntegers(sc.nextLine());
         range = divs[0] * divs[1];
-        getIteration();
-        while (iteration == 0) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.println("Somehow an error occured?");
-            }
-        }
+        int iteration = Integer.parseInt(new QuestionBox("What iteration are you on", 0, range).getAnswer(true));
 
         //Finding which row and column of the picture we're on.
-        int row;
-        int column;
-        row = iteration % divs[0];
+        int row = iteration % divs[0];
+        int column = (int) Math.ceil((double) iteration / (double) divs[0]);
         if (row == 0) {
             row = divs[0];
         }
-        column = (int) Math.ceil((double) iteration / (double) divs[0]);
 
         /*
         Finding the coordinate constraints of the box of the picture we're on
@@ -73,8 +50,8 @@ public class gatherData {
         bounds and SEx, SEy are the coords of the southeast bounds.
 
         */
-        double dX = (se[0] - nw[0]) / (double) divs[0];
-        double dY = (se[1] - nw[1]) / (double) divs[1];
+        double dX = findRateOfChange(se[0], nw[0], divs[0]);
+        double dY = findRateOfChange(se[1], nw[1], divs[1]);
 
         double NWx = nw[0] + dX * (row - 1);
         double NWy = nw[1] + dY * (column - 1);
@@ -90,24 +67,7 @@ public class gatherData {
     /*
     This is a box that pops up and asks you which box number
      */
-    private static void getIteration() {
-        QuestionBox box = new QuestionBox("Which iteration are you on?", true, 0, range);
-        box.submit.addActionListener(e -> {
-            try {
-                int iter = Integer.parseInt(box.getText());
-                if (common.fileExists(common.getParentDirectory() + "input_" + iter + ".txt")) {
-                    box.text.setText("You've already done that one! Try again.");
-                } else if (iter > range || iter <= 0) {
-                    box.text.setText("Not in the iteration range! Try again.");
-                } else {
-                    iteration = iter;
-                    box.dispose();
-                }
-            } catch (Exception exc) {
-                System.out.println("error?");
-            }
-        });
-    }
+
 
     private static void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
 
@@ -133,8 +93,7 @@ public class gatherData {
             for (int j = 0; j < div; j++) {
                 double x = NW[0] - (j * HIterator);
                 double y = NW[1] - (i * VIterator);
-                String address;
-                address = getAddressNumber(x, y);
+                String address = new GoogleAddress(x, y).getAddressNumber();
                 try {
                     int n = Integer.parseInt(address);
                     if (n != 0) {
@@ -154,46 +113,13 @@ public class gatherData {
         wr_er.close();
     }
 
-    /*
-    The input is expected to be prefix + x coords + , + y coords + suffix. This will
-     return a JSONObject with all the data. Here's google's overview on it if you
-     want to know more about what the API does.
-     https://developers.google.com/maps/documentation/geocoding/intro
-
-     Since you can't take the raw text return from google and put it into a JSONObject,
-     you have to make it a string first and then make the JSON stuff do its work.
-     */
-    private static JSONObject getGoogleInput(URL u) throws IOException {
-        InputStream b = u.openStream();
-        BufferedReader a = new BufferedReader(new InputStreamReader(b));
-        String line;
-        StringBuilder sb = new StringBuilder();
-        while ((line = a.readLine()) != null) {
-            sb.append(line);
-        }
-        return new JSONObject(sb.toString());
-    }
-
-    /*
-    Gets the address number at a given x and y coordinate. Returns a string because
-    occasionally duplex addresses get returned and those have a letter on the end.
-     */
-    private static String getAddressNumber(double x, double y) throws IOException {
-        String url = prefix + x + "," + y + suffix;
-        JSONObject input = getGoogleInput(new URL(url));
-        JSONArray results = input.getJSONArray("results");
-        JSONObject acresults = new JSONObject(results.get(0).toString());
-        String[] formattedAddress = acresults.get("formatted_address").toString().split(" ")[0].split("-");
-        return formattedAddress[0];
+    private static double findRateOfChange(double a, double b, int divisions) {
+        return (a - b) / divisions;
     }
 
     /*
     Gets the working directory path.
      */
-    private static String getFilePath(String a) {
-        File asdf = new File((new File(new File(new File(run.class.getResource("run.class").getFile()).getParent()).getParent()).getParent() + "/" + a).substring(5));
-        return asdf.toString();
-    }
 
 
 }

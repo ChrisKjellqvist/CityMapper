@@ -8,11 +8,17 @@ import java.awt.*;
  * Created by chris on 12/5/15.
  */
 public class QuestionBox extends JFrame {
+    static String ret;
     JButton submit;
     JTextField answer;
     JLabel text;
+    int max;
+    int min;
 
-    public QuestionBox(String message, boolean numericAnswer, int minValue, int maxValue) {
+    public QuestionBox(String message, int minValue, int maxValue) {
+        this.max = maxValue;
+        this.min = minValue;
+
         //frame
         JFrame frame = new JFrame("QuestionBox");
         JPanel panel = new JPanel();
@@ -42,7 +48,31 @@ public class QuestionBox extends JFrame {
         frame.pack();
     }
 
-    public String getText() {
-        return answer.getText();
+    public String getAnswer(boolean numericValue) {
+        this.setVisible(true);
+        this.submit.addActionListener(e -> {
+            try {
+                if (numericValue) {
+                    int answer = Integer.parseInt(this.answer.getText());
+                    if (answer >= min && answer <= this.max) {
+                        this.dispose();
+                        ret = Integer.toString(answer);
+                    } else {
+                        this.text.setText("Not within range.");
+                    }
+                } else {
+                    ret = this.answer.getText();
+                }
+            } catch (Exception exc) {
+                System.out.println("error?");
+            }
+        });
+        while (ret == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        return ret;
     }
 }

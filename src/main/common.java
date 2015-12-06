@@ -23,8 +23,31 @@ public class common {
         return true;
     }
     public static String getParentDirectory() {
-        return (new File(new File(new File(run.class.getResource("run.class")
+        return (new File(new File(new File(run.class.getResource("common.class")
                 .getFile()).getParent()).getParent()).getParent() + "/").substring(5);
 
+    }
+
+    public static String getFilePath(String a) {
+        File asdf = new File((new File(new File(new File(run.class.getResource("run.class").getFile()).getParent()).getParent()).getParent() + "/" + a).substring(5));
+        return asdf.toString();
+    }
+
+    public static double[] getDoubles(String a) {
+        String[] split = a.split(" ");
+        double[] b = new double[2];
+        for (int i = 0; i < 2; i++) {
+            b[i] = Double.parseDouble(split[i]);
+        }
+        return b;
+    }
+
+    public static int[] getIntegers(String a) {
+        String[] split = a.split(" ");
+        int[] b = new int[2];
+        for (int i = 0; i < 2; i++) {
+            b[i] = Integer.parseInt(split[i]);
+        }
+        return b;
     }
 }
