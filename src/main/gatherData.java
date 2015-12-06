@@ -3,9 +3,6 @@ package main;
 import json.JSONArray;
 import json.JSONObject;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.util.Scanner;
@@ -33,15 +30,15 @@ public class gatherData {
         t.close();
         Scanner sc = new Scanner(new File(common.getParentDirectory() + "settings.txt"));
         String[] temp;
-        double[] NW = new double[2];
+        double[] nw = new double[2];
         temp = sc.nextLine().split(" ");
         for (int i = 0; i < 2; i++) {
-            NW[i] = Double.parseDouble(temp[i]);
+            nw[i] = Double.parseDouble(temp[i]);
         }
-        double[] SE = new double[2];
+        double[] se = new double[2];
         temp = sc.nextLine().split(" ");
         for (int i = 0; i < 2; i++) {
-            SE[i] = Double.parseDouble(temp[i]);
+            se[i] = Double.parseDouble(temp[i]);
         }
         int[] divs = new int[2];
         temp = sc.nextLine().split(" ");
@@ -49,7 +46,7 @@ public class gatherData {
             divs[i] = Integer.parseInt(temp[i]);
         }
         range = divs[0] * divs[1];
-        iterationRequest();
+        getIteration();
         while (iteration == 0) {
             try {
                 Thread.sleep(1000);
@@ -76,60 +73,40 @@ public class gatherData {
         bounds and SEx, SEy are the coords of the southeast bounds.
 
         */
-        double dX = (SE[0] - NW[0]) / (double) divs[0];
-        double dY = (SE[1] - NW[1]) / (double) divs[1];
+        double dX = (se[0] - nw[0]) / (double) divs[0];
+        double dY = (se[1] - nw[1]) / (double) divs[1];
 
-        double NWx = NW[0] + dX * (row - 1);
-        double NWy = NW[1] + dY * (column - 1);
+        double NWx = nw[0] + dX * (row - 1);
+        double NWy = nw[1] + dY * (column - 1);
         double[] a = {NWx, NWy};
 
-        double SEx = NW[0] + dX * row;
-        double SEy = NW[1] + dY * column;
-        double[] b = {SEx, SEy};
+        double sex = nw[0] + dX * row;
+        double sey = nw[1] + dY * column;
+        double[] b = {sex, sey};
         File[] f = {new File("input_" + iteration + ".txt"), new File("err_" + iteration + ".txt")};
         gather(f, a, b, 50);
     }
 
     /*
-    This is a box that pops up and asks you which box number you're on.
-    It makes sure you give a valid number based on the number of x and y
-    divs you're working with.
+    This is a box that pops up and asks you which box number
      */
-    private static void iterationRequest() {
-        JFrame frame = new JFrame("iteration?");
-        JPanel panel = new JPanel();
-        frame.setPreferredSize(new Dimension(600, 160));
-        Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 5);
-        JLabel whichIt = new JLabel("Which Iteration are you on?");
-        whichIt.setPreferredSize(new Dimension(300, 80));
-        whichIt.setBorder(padding);
-        JTextField ans = new JTextField();
-        ans.setBorder(padding);
-        ans.setPreferredSize(new Dimension(40, 30));
-        JButton submit = new JButton("submit");
-        submit.setBorder(padding);
-        panel.add(whichIt);
-        panel.add(ans);
-        panel.add(submit);
-        panel.setPreferredSize(new Dimension(600, 80));
-        frame.add(panel);
-        frame.pack();
-        submit.addActionListener(e -> {
+    private static void getIteration() {
+        QuestionBox box = new QuestionBox("Which iteration are you on?", true, 0, range);
+        box.submit.addActionListener(e -> {
             try {
-                int iter = Integer.parseInt(ans.getText());
+                int iter = Integer.parseInt(box.getText());
                 if (common.fileExists(common.getParentDirectory() + "input_" + iter + ".txt")) {
-                    whichIt.setText("You've already done that one! Try again.");
+                    box.text.setText("You've already done that one! Try again.");
                 } else if (iter > range || iter <= 0) {
-                    whichIt.setText("Not in the iteration range! Try again.");
+                    box.text.setText("Not in the iteration range! Try again.");
                 } else {
                     iteration = iter;
-                    frame.dispose();
+                    box.dispose();
                 }
             } catch (Exception exc) {
                 System.out.println("error?");
             }
         });
-        frame.setVisible(true);
     }
 
     private static void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
@@ -150,31 +127,16 @@ public class gatherData {
 
         /*
         Just going across the map, one by one, and asking google via the getAddressNumber
-        method what the address at each point is.
+        method what the address at each point is. If it's valid, it writes it down.
          */
         for (int i = 0; i < div; i++) {
             for (int j = 0; j < div; j++) {
                 double x = NW[0] - (j * HIterator);
                 double y = NW[1] - (i * VIterator);
                 String address;
-                /*
-                Sometimes the output is weird. So where normal addresses would be 1423 Mulberry St.,
-                sometimes google will return 21534b Pickle Ave. (a duplex). I used to just not care
-                for the Bs and As and the try/catch would take care of that and just throw it at
-                wr_er but now that I'm finishing it up, I try to take the b out of it.
-                 */
                 address = getAddressNumber(x, y);
                 try {
                     int n = Integer.parseInt(address);
-
-                    /*
-                    I don't know what this if statement does but it's been here and I don't want
-                    to potentially break the program because it seems like it works fine as it is.
-                    If I had to guess, zeroes would cause the range of addresses on the map to
-                    be too large and thus cause everything to look really colorful because their
-                    color values would get boosted because of the zeroes relatively making the
-                    other values high. It doesn't really matter in any case.
-                     */
                     if (n != 0) {
                         wr.write(i + " " + j + " " + address + "\n");
                     }
@@ -213,13 +175,8 @@ public class gatherData {
     }
 
     /*
-    In reality, the returned data from google is a JSONObject within a JSONArray within
-    the original JSONObject. So thats what acresults (short for actual results) is about.
-    It also takes the formatted address (which, for example, would look like:
-    2237 Forest Fire Ln. Columbus, OH 38183 USA [or something close]), and takes the first
-    word off of it which should be number. Or in the case of a duplex could be a number
-    with an a or b attached. A lot of the time, there's a really big road running through
-    the picture so we get a ton of errors from being no address number at all.
+    Gets the address number at a given x and y coordinate. Returns a string because
+    occasionally duplex addresses get returned and those have a letter on the end.
      */
     private static String getAddressNumber(double x, double y) throws IOException {
         String url = prefix + x + "," + y + suffix;
@@ -231,10 +188,7 @@ public class gatherData {
     }
 
     /*
-    This is the most annoying part of this entire project. I had to be able to check that
-    there was an api key and settings file before I tried to start collecting data. I already
-    explained what this all means in common so I'll just leave it at that. Shoutout to Martin
-    for helping with this.
+    Gets the working directory path.
      */
     private static String getFilePath(String a) {
         File asdf = new File((new File(new File(new File(run.class.getResource("run.class").getFile()).getParent()).getParent()).getParent() + "/" + a).substring(5));

@@ -11,10 +11,10 @@ public class run {
         If it's all there, then you're good to go.
          */
         if (!(common.fileExists("settings.txt"))) {
-            common.display("couldn't find settings.");
+            new MessageBox("couldn't find settings.").setVisible(true);
             startupbox.run();
         } else if (!(common.fileExists("api_key.txt"))) {
-            common.display("Make your api_key.txt pleaseaa.");
+            new MessageBox("Make your api_key.txt please.").setVisible(true);
         } else {
             gatherData.run();
         }
