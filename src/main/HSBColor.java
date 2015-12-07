@@ -2,6 +2,8 @@ package main;
 
 /**
  * Created by chris on 12/5/15.
+ * HSB stands for Hue, Saturation, and Brightness. I use the formula
+ * I found online to compute between RGB and HSB.
  */
 public class HSBColor {
     double[] HSV = new double[3];

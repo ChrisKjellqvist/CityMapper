@@ -7,6 +7,7 @@ import java.net.URL;
 
 /**
  * Created by chris on 12/6/15.
+ * Loads the image given by the Google Maps API with the given parameters.
  */
 public class GoogleMap {
     String place;

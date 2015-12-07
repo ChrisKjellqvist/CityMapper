@@ -12,6 +12,8 @@ import java.util.ArrayList;
 /**
  * Created by chris on 9/21/15.
  * Uses data created by gatherData to construct an overlay for a map image.
+ *
+ * NOT COMPLETED YET.
  */
 public class MapMaker {
     public static void main(String[] args) throws IOException {

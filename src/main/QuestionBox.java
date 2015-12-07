@@ -6,6 +6,8 @@ import java.awt.*;
 
 /**
  * Created by chris on 12/5/15.
+ * Generates a box with a message, answer field, and submit button.
+ * If you want it to be a number value, you can also give it a range.
  */
 public class QuestionBox extends JFrame {
     static String ret;
@@ -16,13 +18,13 @@ public class QuestionBox extends JFrame {
     int min;
 
     public QuestionBox(String message, int minValue, int maxValue) {
+
         this.max = maxValue;
         this.min = minValue;
 
         //frame
-        JFrame frame = new JFrame("QuestionBox");
         JPanel panel = new JPanel();
-        frame.setPreferredSize(new Dimension(600, 160));
+        this.setPreferredSize(new Dimension(600, 160));
         Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 5);
 
         //Textbox asking a question
@@ -44,8 +46,8 @@ public class QuestionBox extends JFrame {
         panel.add(answer);
         panel.add(submit);
         panel.setPreferredSize(new Dimension(600, 80));
-        frame.add(panel);
-        frame.pack();
+        this.add(panel);
+        this.pack();
     }
 
     public String getAnswer(boolean numericValue) {

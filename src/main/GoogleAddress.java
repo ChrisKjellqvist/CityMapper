@@ -18,21 +18,22 @@ public class GoogleAddress {
     private double x;
     private double y;
 
-    public GoogleAddress(double x, double y) {
+    public GoogleAddress(double x, double y, String api) {
         this.x = x;
         this.y = x;
+        suffix += api;
     }
 
-    /*
-    The input is expected to be prefix + x coords + , + y coords + suffix. This will
-     return a JSONObject with all the data. Here's google's overview on it if you
-     want to know more about what the API does.
-     https://developers.google.com/maps/documentation/geocoding/intro
-
-     Since you can't take the raw text return from google and put it into a JSONObject,
-     you have to make it a string first and then make the JSON stuff do its work.
+    /**
+     * The input is expected to be prefix + x coords + , + y coords + suffix. This will
+     * return a JSONObject with all the data. Here's google's overview on it if you
+     * want to know more about what the API does.
+     * https://developers.google.com/maps/documentation/geocoding/intro
+     * <p>
+     * Since you can't take the raw text return from google and put it into a JSONObject,
+     * you have to make it a string first and then make the JSON stuff do its work.
      */
-    private static JSONObject getGoogleInput(URL u) throws IOException {
+    public static JSONObject getGoogleInput(URL u) throws IOException {
         InputStream b = u.openStream();
         BufferedReader a = new BufferedReader(new InputStreamReader(b));
         String line;
@@ -44,9 +45,9 @@ public class GoogleAddress {
     }
 
 
-    /*
-    Gets the address number at a given x and y coordinate. Returns a string because
-    occasionally duplex addresses get returned and those have a letter on the end.
+    /**
+     * Gets the address number at a given x and y coordinate. Returns a string because
+     * occasionally duplex addresses get returned and those have a letter on the end.
      */
     public String getAddressNumber() throws IOException {
         String url = prefix + this.x + "," + this.y + suffix;

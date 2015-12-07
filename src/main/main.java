@@ -4,7 +4,7 @@ package main;
  * Created by chris on 12/1/15.
  * This is the file run when you run the jar file.
  */
-public class run {
+public class main {
     public static void main(String[] args) throws Exception {
         /*
         checks to make sure basic stuff like your settings and api key exist.

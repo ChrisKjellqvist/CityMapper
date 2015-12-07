@@ -6,6 +6,7 @@ import java.awt.*;
 
 /**
  * Created by chris on 12/6/15.
+ * Generates a box with a label and 2 entries for x and y coordinates
  */
 public class CoordinateEntries extends JPanel {
     Dimension textFieldDimensions = new Dimension(200, 20);
@@ -21,9 +22,8 @@ public class CoordinateEntries extends JPanel {
         this.title = new JLabel(title);
         this.title.setBorder(defaultBorder);
         this.add(this.title, 0);
-
-        x.setText("x");
-        y.setText("y");
+        x = new JTextField("x");
+        y = new JTextField("y");
         x.setBorder(defaultBorder);
         y.setBorder(defaultBorder);
         x.setPreferredSize(textFieldDimensions);

@@ -62,7 +62,7 @@ public class startupbox {
         full.add(row4);
 
         JPanel row5 = new JPanel(defaultFlowLayout);
-        JSlider yDivs = new DefaultSlider(0, 10);
+        DefaultSlider yDivs = new DefaultSlider(0, 10);
         JLabel yDivLabel = new JLabel("Y divisions: ");
         yDivLabel.setBorder(padding);
         yDivLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -86,7 +86,7 @@ public class startupbox {
         JLabel zoomLabel = new JLabel("Zoom Level: ");
         zoomLabel.setBorder(padding);
         zoomLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JSlider zoom = new DefaultSlider(0, 20);
+        DefaultSlider zoom = new DefaultSlider(0, 20);
         JButton fetchMap = new JButton("Fetch Map");
         fetchMap.setBorder(padding);
         fetchMap.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -124,7 +124,6 @@ public class startupbox {
          */
 
         yDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
-
         xDivs.addChangeListener(e -> daysToComplete.setText(Integer.toString(xDivs.getValue() * yDivs.getValue())));
 
         /*
