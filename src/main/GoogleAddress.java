@@ -11,17 +11,19 @@ import java.net.URL;
 
 /**
  * Created by chris on 12/6/15.
+ * Class for a google Address. Is able to get
+ * address from x,y coordinates.
  */
 public class GoogleAddress {
-    private static String prefix = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
-    private static String suffix = "&key=";
-    private double x;
-    private double y;
+    public String prefix = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+    public String suffix = "&key=";
+    public double x;
+    public double y;
 
     public GoogleAddress(double x, double y, String api) {
         this.x = x;
-        this.y = x;
-        suffix += api;
+        this.y = y;
+        suffix = suffix + api;
     }
 
     /**
@@ -52,9 +54,9 @@ public class GoogleAddress {
     public String getAddressNumber() throws IOException {
         String url = prefix + this.x + "," + this.y + suffix;
         JSONObject input = getGoogleInput(new URL(url));
-        JSONArray results = input.getJSONArray("results");
-        JSONObject acresults = new JSONObject(results.get(0).toString());
-        String[] formattedAddress = acresults.get("formatted_address").toString().split(" ")[0].split("-");
-        return formattedAddress[0];
+        JSONArray array = input.getJSONArray("results");
+        JSONObject test = array.getJSONObject(0);
+        String a = test.get("formatted_address").toString();
+        return a.split(" ")[0];
     }
 }

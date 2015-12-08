@@ -63,39 +63,34 @@ public class DataGatherer {
         if (files.length != 2) {
             throw new Exception("Missing either an output file or an error file name");
         }
-
-        /*
-        Output file writers
-         */
         BufferedWriter wr = new BufferedWriter(new FileWriter(common.getParentDirectory() + files[0]));
         BufferedWriter wr_er = new BufferedWriter(new FileWriter(common.getParentDirectory() + files[1]));
         wr.write(NW[0] + " " + NW[1] + " " + " " + SE[0] + " " + SE[1] + "\n");
 
-        /*
-        Just going across the map, one by one, and asking google via the getAddressNumber
-        method what the address at each point is. If it's valid, it writes it down.
-         */
         double x = 0;
         double y = 0;
         try {
             for (int i = 0; i < div; i++) {
                 for (int j = 0; j < div; j++) {
-                    status.messageLabel.setText("" + (i * div + j));
-                    x = NW[0] - (j * HIterator);
-                    y = NW[1] - (i * VIterator);
-                    String address = "";
                     try {
-                        address = new GoogleAddress(x, y, apiKey).getAddressNumber();
+                        status.messageLabel.setText("" + (i * div + j));
+                        x = NW[0] - (j * HIterator);
+                        y = NW[1] - (i * VIterator);
+                        GoogleAddress current = new GoogleAddress(x, y, apiKey);
+                        String address = current.getAddressNumber();
                         int n = Integer.parseInt(address);
                         if (n != 0) {
                             wr.write(i + " " + j + " " + address + "\n");
                         }
                     } catch (Exception e) {
+                        wr_er.write(e.toString() + "\t" + x + " " + y + "\n");
+                        System.out.println(e.toString() + "\t" + x + " " + y + "\n");
                     }
                 }
             }
         } catch (Exception e) {
             wr_er.write(e.toString() + "\t" + x + " " + y + "\n");
+            System.out.println(e.toString() + "\t" + x + " " + y + "\n");
         }
         wr.close();
         wr_er.close();
@@ -104,7 +99,6 @@ public class DataGatherer {
     private static double findRateOfChange(double a, double b, int divisions) {
         return (a - b) / divisions;
     }
-
 
 
 }
