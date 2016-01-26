@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,8 +14,8 @@ public class DataGatherer {
     static String apiKey;
     static int iteration = 0;
     static int range;
-
-    public static void run() throws Exception {
+    private PercentageFrame frame;
+    public void run() throws Exception {
         Scanner t = new Scanner(new File(common.getParentDirectory() + "api_key.txt"));
         apiKey = t.nextLine();
         t.close();
@@ -25,7 +26,7 @@ public class DataGatherer {
         int[] divs = common.getIntegers(sc.nextLine());
         range = divs[0] * divs[1];
         int iteration = Integer.parseInt(new QuestionBox("What iteration are you on", 0, range).getAnswer(true));
-        MessageBox asdf = new MessageBox(iteration + "");
+        frame = new PercentageFrame(new Dimension(300,75));
         //Finding which row and column of the picture we're on.
         int row = iteration % divs[0];
         int column = (int) Math.ceil((double) iteration / (double) divs[0]);
@@ -54,9 +55,7 @@ public class DataGatherer {
         gather(f, a, b, 50);
     }
 
-    private static void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
-        MessageBox status = new MessageBox("starting");
-        status.setVisible(true);
+    private void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
         //These are basically xD and yD from earlier except for the box itself.
         double HIterator = (NW[0] - SE[0]) / div;
         double VIterator = (NW[1] - SE[1]) / div;
@@ -73,7 +72,7 @@ public class DataGatherer {
             for (int i = 0; i < div; i++) {
                 for (int j = 0; j < div; j++) {
                     try {
-                        status.messageLabel.setText("" + (i * div + j));
+                        frame.setPerc((double)(i*div+j)/(double)(div*div));
                         x = NW[0] - (j * HIterator);
                         y = NW[1] - (i * VIterator);
                         GoogleAddress current = new GoogleAddress(x, y, apiKey);
@@ -92,11 +91,12 @@ public class DataGatherer {
             wr_er.write(e.toString() + "\t" + x + " " + y + "\n");
             System.out.println(e.toString() + "\t" + x + " " + y + "\n");
         }
+        frame.dispose();
         wr.close();
         wr_er.close();
     }
 
-    private static double findRateOfChange(double a, double b, int divisions) {
+    private double findRateOfChange(double a, double b, int divisions) {
         return (a - b) / divisions;
     }
 
