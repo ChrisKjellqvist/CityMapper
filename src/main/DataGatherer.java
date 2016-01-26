@@ -56,6 +56,7 @@ public class DataGatherer {
     }
 
     private void gather(File[] files, double[] NW, double[] SE, int div) throws Exception {
+        frame.setVisible(true);
         //These are basically xD and yD from earlier except for the box itself.
         double HIterator = (NW[0] - SE[0]) / div;
         double VIterator = (NW[1] - SE[1]) / div;
