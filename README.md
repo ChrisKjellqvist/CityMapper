@@ -1,4 +1,7 @@
 # CityMapper
-Uses the Google Geocoding API to collect data regarding addresses over different cities and stores them in a format suitable for my other project, DataDrawer, to draw over a map. Some complete examples of Houston.
+This project started with the question: Why is my address what it is? What patterns apply to city addresses in different cities? Are they all the same or do they all follow different patterns? 
+Using the Google Geocoding API, I sampled address data from a square over the cities Houston and Boston. This can be done to any city but it currently has to be hardcoded. It assembles this data into a format readable by the DataDrawer project.
 
-http://imgur.com/a/DpzG5  For these pictures, I made 62500 requests to google and plotted those over a 1280x1280 image, taken from the Google Maps Static Map API. I would have made it so that the requests were 1:1 for the pixels on the image, but I did this with the free API code and that would have taken almost two years so I chose to opt with this lower resolution version and collected the data over 3 weeks. To add, in the latest version, there is a legend for the gradient on the bottom left but the first picture in the example album does not. All of the rest do, though.
+Some examples of the finished project:
+
+  http://imgur.com/a/DpzG5  
